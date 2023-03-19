@@ -33,6 +33,7 @@ hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
 androidx-core = "androidx.core:core-ktx:1.8.0"
 androidx-appcompat = "androidx.appcompat:appcompat:1.6.1"
 google-material = "com.google.android.material:material:1.8.0"
+androidx-splashscreen = "androidx.core:core-splashscreen:1.0.0"
 
 androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "androidxComposeBom" }
 compose-activity = "androidx.activity:activity-compose:1.7.0-beta02"

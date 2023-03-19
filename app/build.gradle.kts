@@ -36,6 +36,7 @@ dependencies {
     implementation(libs.androidx.core)
     implementation(libs.androidx.appcompat)
     implementation(libs.google.material)
+    implementation(libs.androidx.splashscreen)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.bundles.compose)
     testImplementation(libs.test.junit)
