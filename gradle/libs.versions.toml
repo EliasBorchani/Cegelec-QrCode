@@ -11,6 +11,7 @@ spotless = "6.11.0"
 coroutines = "1.6.4"
 
 hilt = "2.44.2"
+hilt-androidx = "1.0.0"
 ksp = "1.7.20-1.0.6"
 
 androidxComposeBom = "2022.11.00"
@@ -35,6 +36,8 @@ androidx-appcompat = "androidx.appcompat:appcompat:1.6.1"
 google-material = "com.google.android.material:material:1.8.0"
 androidx-splashscreen = "androidx.core:core-splashscreen:1.0.0"
 
+androidx-work = "androidx.work:work-runtime-ktx:2.8.0"
+
 androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "androidxComposeBom" }
 compose-activity = "androidx.activity:activity-compose:1.7.0-beta02"
 compose-constraintLayout = "androidx.constraintlayout:constraintlayout-compose:1.1.0-alpha04"
@@ -52,6 +55,14 @@ compose-uiViewBinding = { group = "androidx.compose.ui", name = "ui-viewbinding"
 compose-viewModel = "androidx.lifecycle:lifecycle-viewmodel-compose:2.6.0-rc01"
 compose-coil = "io.coil-kt:coil-compose:2.2.2"
 compose-lottie = "com.airbnb.android:lottie-compose:5.2.0"
+
+hilt-library = { module = "com.google.dagger:hilt-android", version.ref = "hilt" }
+hilt-compose = { module = "androidx.hilt:hilt-navigation-compose", version.ref = "hilt-androidx" }
+androidx-hilt-common = { module = "androidx.hilt:hilt-common", version.ref = "hilt-androidx" }
+androidx-hilt-work = { module = "androidx.hilt:hilt-work", version.ref = "hilt-androidx" }
+androidx-hilt-compiler = { module = "androidx.hilt:hilt-compiler", version.ref = "hilt-androidx" }
+hilt-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hilt" }
+
 
 test-junit = "junit:junit:4.13.2"
 
@@ -73,4 +84,11 @@ compose = [
     "compose-viewModel",
     "compose-coil",
     "compose-lottie",
+]
+
+hilt = [
+    "hilt-library",
+    "hilt-compose",
+    "androidx-hilt-common",
+    "androidx-hilt-work",
 ]
