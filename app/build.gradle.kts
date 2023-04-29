@@ -50,6 +50,7 @@ dependencies {
     implementation(libs.bundles.compose)
     implementation(libs.bundles.hilt)
     implementation(libs.androidx.work)
+    implementation(libs.zxwing.core)
     kapt(libs.androidx.hilt.compiler)
     kapt(libs.hilt.compiler)
     testImplementation(libs.test.junit)
