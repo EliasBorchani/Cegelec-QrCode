@@ -51,21 +51,10 @@ fun ManufacturerQrCodeScreen(
             )
         }
     ) { innerPadding ->
-        val serialQrCodeContent = remember {
-            ubyteArrayOf(0x08u, 0xC6u, 0x04u, 0x08u, 0x00u, 0xF2u, 0x01u, 0x00u, 0xFEu, 0x33u)
-                .toByteArray()
-                .toString(StandardCharsets.ISO_8859_1)
-        }
-        val franceQrCodeContent = remember {
-            ubyteArrayOf(0x08u, 0xC6u, 0x04u, 0x08u, 0x00u, 0xF6u, 0x01u, 0x08u, 0xFEu, 0x27u)
-                .toByteArray()
-                .toString(StandardCharsets.ISO_8859_1)
-        }
-        val blinkQrCodeContent = remember {
-            ubyteArrayOf(0x08u, 0xC6u, 0x04u, 0x08u, 0x00u, 0xF2u, 0x02u, 0x00u, 0xFEu, 0x32u)
-                .toByteArray()
-                .toString(StandardCharsets.ISO_8859_1)
-        }
+        val serialQrCodeContent = remember { "^#SC^3030010" }
+        val franceQrCodeContent = remember { "^#SC^6060108" }
+        val blinkQrCodeContent = remember { "^#SC^3030020" }
+        val unicodeModeQrCodeContent = remember { "^#SC^3030062" }
 
         Column(
             modifier = Modifier
@@ -104,6 +93,17 @@ fun ManufacturerQrCodeScreen(
             ) {
                 Image(
                     painter = BitmapPainter(rememberQrBitmap(content = blinkQrCodeContent).asImageBitmap()),
+                    contentDescription = "qrCode"
+                )
+            }
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(text = "Mode Unicode :")
+            Box(
+                modifier = Modifier.fillMaxWidth(),
+                contentAlignment = Alignment.Center
+            ) {
+                Image(
+                    painter = BitmapPainter(rememberQrBitmap(content = unicodeModeQrCodeContent).asImageBitmap()),
                     contentDescription = "qrCode"
                 )
             }
