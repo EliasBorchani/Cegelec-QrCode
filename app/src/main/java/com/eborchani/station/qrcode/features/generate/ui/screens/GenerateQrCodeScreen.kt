@@ -9,8 +9,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Button
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
@@ -67,6 +69,11 @@ fun GenerateQrCodeScreen(
         onWifiSsidChanged = viewModel::updateSsid,
         onWifiPasswordChanged = viewModel::updateWifiPassword,
         onHostChanged = viewModel::updateHost,
+        onSmtp = viewModel::updateSmtpActivation,
+        onSmtpRecipientChanged = viewModel::updateSmtpRecipient,
+        onSmtpHostChanged = viewModel::updateSmtpHost,
+        onSmtpAuthChanged = viewModel::updateSmtpAuth,
+        onSmtpPasswordChanged = viewModel::updateSmtpPassword,
         onGenerateClicked = viewModel::generate,
         onSeeManufacturerCodesClicked = onNavigateToManufacturerCodes,
     )
@@ -81,6 +88,11 @@ fun GenerateQrCodeScreen(
     onWifiSsidChanged: (String) -> Unit,
     onWifiPasswordChanged: (String) -> Unit,
     onHostChanged: (String) -> Unit,
+    onSmtp: (Boolean) -> Unit,
+    onSmtpRecipientChanged: (String) -> Unit,
+    onSmtpHostChanged: (String) -> Unit,
+    onSmtpAuthChanged: (String) -> Unit,
+    onSmtpPasswordChanged: (String) -> Unit,
     onGenerateClicked: () -> Unit,
     onSeeManufacturerCodesClicked: () -> Unit
 ) {
@@ -110,9 +122,11 @@ fun GenerateQrCodeScreen(
             Column(
                 modifier = Modifier
                     .weight(1f)
-                    .padding(horizontal = 16.dp),
+                    .padding(horizontal = 16.dp)
+                    .verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
+                val keyboard = LocalSoftwareKeyboardController.current
                 OutlinedTextField(
                     modifier = Modifier.fillMaxWidth(),
                     label = { Text("Numéro de Station : STC") },
@@ -134,7 +148,6 @@ fun GenerateQrCodeScreen(
                         GenerateQrCodeScreenState.Side.Right -> 1
                         null -> null
                     }
-                    val keyboard = LocalSoftwareKeyboardController.current
                     RadioGroup(
                         selected = selected,
                         onSelectionChanged = {
@@ -176,7 +189,6 @@ fun GenerateQrCodeScreen(
                     },
 
                 )
-                val keyboard = LocalSoftwareKeyboardController.current
                 OutlinedTextField(
                     modifier = Modifier.fillMaxWidth(),
                     label = { Text("Adresse du serveur") },
@@ -192,6 +204,82 @@ fun GenerateQrCodeScreen(
                 )
                 if (state.hostError) {
                     Text(text = "Ceci n'est pas une adresse valide", color = MaterialTheme.colorScheme.error)
+                }
+
+                Text("Envoie d'un e-mail ?")
+
+                Box(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    val selected = when (state.smtpRecipient) {
+                        null -> 0
+                        else -> 1
+                    }
+                    RadioGroup(
+                        selected = selected,
+                        onSelectionChanged = { index ->
+                            onSmtp(index == 1)
+                            keyboard?.hide()
+                        }
+                    ) {
+                        item { Text("Non") }
+                        item { Text("Oui") }
+                    }
+                }
+                if (state.smtpRecipient != null) {
+                    OutlinedTextField(
+                        modifier = Modifier.fillMaxWidth(),
+                        label = { Text("Destinataire") },
+                        placeholder = { Text("xxxx@xx.xx") },
+                        value = state.smtpRecipient,
+                        isError = state.smtpRecipient.isBlank(),
+                        onValueChange = onSmtpRecipientChanged,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri, imeAction = ImeAction.Next),
+                        keyboardActions = KeyboardActions(onDone = {
+                            keyboard?.hide()
+                            onGenerateClicked()
+                        })
+                    )
+                    OutlinedTextField(
+                        modifier = Modifier.fillMaxWidth(),
+                        label = { Text("SMTP host") },
+                        placeholder = { Text("xxxxx.xx") },
+                        value = state.smtpHost,
+                        isError = state.smtpHost.isBlank(),
+                        onValueChange = onSmtpHostChanged,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri, imeAction = ImeAction.Next),
+                        keyboardActions = KeyboardActions(onDone = {
+                            keyboard?.hide()
+                            onGenerateClicked()
+                        })
+                    )
+                    OutlinedTextField(
+                        modifier = Modifier.fillMaxWidth(),
+                        label = { Text("SMTP Auth") },
+                        placeholder = { Text("SMTP Auth") },
+                        value = state.smtpAuth,
+                        isError = state.smtpAuth.isBlank(),
+                        onValueChange = onSmtpAuthChanged,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Next),
+                    )
+                    var smtpPasswordVisible by remember { mutableStateOf(false) }
+                    OutlinedTextField(
+                        modifier = Modifier.fillMaxWidth(),
+                        label = { Text("SMTP Mot de passe") },
+                        value = state.smtpPassword,
+                        isError = state.smtpPassword.isBlank(),
+                        onValueChange = onSmtpPasswordChanged,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Done),
+                        visualTransformation = if (smtpPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                        trailingIcon = {
+                            val image = if (smtpPasswordVisible) Icons.Filled.CheckCircle else Icons.Filled.Lock
+                            val description = if (smtpPasswordVisible) "Hide password" else "Show password"
+                            IconButton(onClick = { smtpPasswordVisible = !smtpPasswordVisible }){
+                                Icon(imageVector  = image, description)
+                            }
+                        },
+                    )
                 }
             }
             Column(modifier = Modifier.fillMaxWidth()) {
@@ -220,6 +308,10 @@ data class GenerateQrCodeScreenState(
     val wifiPassword: String? = null,
     val host: String? = null,
     val hostError: Boolean = false,
+    val smtpRecipient: String? = null,
+    val smtpHost: String = "smtp.free.fr",
+    val smtpAuth: String = "stationcharge@free.fr",
+    val smtpPassword: String = "C3G3L3C!edr",
 ) {
     enum class Side { Left, Right }
 }
@@ -234,7 +326,13 @@ private fun GenerateQrCodeScreenPreview() {
         onWifiSsidChanged = {},
         onWifiPasswordChanged = {},
         onHostChanged = {},
+        onSmtp = {},
+        onSmtpRecipientChanged = {},
+        onSmtpHostChanged = {},
+        onSmtpAuthChanged = {},
+        onSmtpPasswordChanged = {},
         onGenerateClicked = {},
         onSeeManufacturerCodesClicked = {},
+
     )
 }

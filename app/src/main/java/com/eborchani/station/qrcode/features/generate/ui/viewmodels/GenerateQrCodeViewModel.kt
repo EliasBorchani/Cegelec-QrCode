@@ -40,6 +40,27 @@ class GenerateQrCodeViewModel @Inject constructor() : ViewModel() {
         state.value = state.value.copy(hostError = hasError)
     }
 
+    fun updateSmtpActivation(enabled: Boolean) {
+        state.value = state.value.copy(smtpRecipient = if (enabled) state.value.smtpRecipient ?: "" else null)
+    }
+
+    fun updateSmtpRecipient(recipient: String) {
+        state.value = state.value.copy(smtpRecipient = recipient)
+    }
+
+    fun updateSmtpHost(host: String) {
+        state.value = state.value.copy(smtpHost = host)
+    }
+
+    fun updateSmtpAuth(auth: String) {
+        state.value = state.value.copy(smtpAuth = auth)
+    }
+
+    fun updateSmtpPassword(password: String) {
+        state.value = state.value.copy(smtpPassword = password)
+    }
+
+
     fun generate() {
         if (isValid()) {
             viewModelScope.launch {
@@ -58,7 +79,7 @@ class GenerateQrCodeViewModel @Inject constructor() : ViewModel() {
 
     private fun buildQrCode(): String {
         return with(state.value) {
-            "STCNUM=$station COTENUM=${if (side == GenerateQrCodeScreenState.Side.Left) "G" else "D"} SSID=${wifiSsid.orEmpty()} PASSWD=${wifiPassword.orEmpty()} ADRESSE=${host ?: "http://stationcharge.free.fr/"}"
+            "STCNUM=$station COTENUM=${if (side == GenerateQrCodeScreenState.Side.Left) "G" else "D"} SSID=${wifiSsid.orEmpty()} PASSWD=${wifiPassword.orEmpty()} ADRESSE=${host ?: "http://stationcharge.free.fr/"} SMTPHOST=$smtpHost SMTPPASS=$smtpPassword SMTPAUT=$smtpAuth SMTPDES=${smtpRecipient ?: "none"} "
         }
     }
 
@@ -68,7 +89,7 @@ class GenerateQrCodeViewModel @Inject constructor() : ViewModel() {
 
     private fun isValid(): Boolean {
         return with(state.value) {
-            side != null && station != null && !stationError
+            side != null && station != null && !stationError && (smtpRecipient == null || (smtpRecipient.isNotBlank() && smtpHost.isNotBlank() && smtpAuth.isNotBlank() && smtpPassword.isNotBlank()))
         }
     }
 }
